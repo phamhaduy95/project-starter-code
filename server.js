@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { filterImageFromURL, deleteLocalFiles } from './util/util.js';
+import { filterImageFromURL, deleteLocalFiles, isImageFile } from './util/util.js';
 
 // Init the Express application
 const app = express();
@@ -30,14 +30,16 @@ app.use(bodyParser.json());
 app.get('/filteredimage', async (req, res) => {
     try {
         const imageURL = req.query?.image_url;
-        if (imageURL) {
-            const outPath = await filterImageFromURL(imageURL);
-            res.sendFile(outPath, () => {
-                deleteLocalFiles([outPath]);
-            });
-        }
+        if (!imageURL) return res.status(400).send('No imageURL found');
+
+        if (!isImageFile(imageURL)) return res.status(400).send('File is not image');
+
+        const outPath = await filterImageFromURL(imageURL);
+        res.status(200).sendFile(outPath, () => {
+            deleteLocalFiles([outPath]);
+        });
     } catch (e) {
-        res.status(400).send('fail to process image');
+        res.status(400).send('Fail to process image');
     }
 });
 
