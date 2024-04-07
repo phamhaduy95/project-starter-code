@@ -1,0 +1,1 @@
+beanstalk_URL = projectstartercode-dev.us-west-2.elasticbeanstalk.com
